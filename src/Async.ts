@@ -1,8 +1,13 @@
+import { rejects } from 'assert';
+
 /*
 Создайте функцию mock, которая принимает на вход аргумент number (количество миллисекунд) и возвращает Promise,
 который завершится через заданное количество миллисекунд со значением, переданным в аргумент.
  */
 export function mock(ms: number): Promise<number> {
+    return new Promise<number>((resolve) => {
+        setTimeout(() => resolve(ms), ms);
+    });
 }
 
 /*
@@ -10,20 +15,10 @@ export function mock(ms: number): Promise<number> {
  */
 export function getData(): Promise<number[]> {
     const result: number[] = [];
-
-    return mock(100)
-        .then((data1) => {
-            result.push(data1);
-            return mock(200);
-        })
-        .then((data2) => {
-            result.push(data2);
-            return mock(300);
-        })
-        .then((data3) => {
-            result.push(data3);
-            return result;
-        });
+    for (let i of [100, 200, 300]) {
+        mock(i).then((data) => result.push(data));
+    }
+    return new Promise((resolve) => resolve(result));
 }
 
 /*
@@ -31,9 +26,5 @@ export function getData(): Promise<number[]> {
 завершенный с ошибкой Promise и возвращал текст ошибки.
  */
 export async function catchException(): Promise<string | undefined> {
-    try {
-        Promise.reject(new Error('my error'));
-    } catch (err) {
-        return err.message;
-    }
+    return Promise.reject(new Error('my error')).catch((err) => err.message);
 }
